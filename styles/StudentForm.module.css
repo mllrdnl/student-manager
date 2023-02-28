@@ -1,0 +1,14 @@
+.container {
+  display: flex;
+  margin: 2rem 4rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputs {
+  display: flex;
+  flex-direction: row;
+}
