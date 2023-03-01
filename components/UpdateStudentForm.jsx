@@ -70,7 +70,7 @@ const UpdateStudentForm = () => {
           <label htmlFor="radioDefault2">Inactive</label>
         </div>
         <button className={styles.addNew}>
-          Add <BiPlus size={25} />
+          Update <BiPlus size={25} />
         </button>
       </form>
     </div>

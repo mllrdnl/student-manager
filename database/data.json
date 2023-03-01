@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Some Name",
+    "parent": "Parent Name",
+    "email": "some@email.com",
+    "assignments": "assignment 1",
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "name": "Another Name",
+    "parent": "Parent Name",
+    "email": "another@email.com",
+    "assignments": "assignment 2",
+    "status": "active"
+  },
+  {
+    "id": 33,
+    "name": "A Name",
+    "parent": "Parent Name",
+    "email": "a@email.com",
+    "assignments": "assignment 3",
+    "status": "active"
+  },
+  {
+    "id": 4,
+    "name": "B Name",
+    "parent": "Parent Name",
+    "email": "b@email.com",
+    "assignments": "none",
+    "status": "inactive"
+  },
+  {
+    "id": 5,
+    "name": "C Name",
+    "parent": "Parent Name",
+    "email": "c@email.com",
+    "assignments": "assignment 1",
+    "status": "active"
+  }
+]
