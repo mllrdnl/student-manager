@@ -3,26 +3,42 @@ import { useReducer } from "react";
 import styles from "../styles/StudentForm.module.css";
 import { BiPlus } from "react-icons/bi";
 import SuccessMsg from "./SuccessMsg";
+import { useQuery, useMutation, useQueryClient } from "react-query";
+import { getStudent, getStudents, updateStudent } from "../lib/helper";
 
-const formReducer = (state, event) => {
-  return {
-    ...state,
-    [event.target.name]: event.target.value,
-  };
-};
+const UpdateStudentForm = ({ formId, formData, setFormData }) => {
+  const queryClient = useQueryClient();
 
-const UpdateStudentForm = () => {
-  onst[(formData, setFormData)] = useReducer(formReducer, {});
+  const { isLoading, isError, data, error } = useQuery(
+    ["students", formId],
+    () => getStudent(formId)
+  );
 
-  const handleSubmit = (e) => {
+  const UpdateMutation = useMutation(
+    (newData) => updateStudent(formId, newData),
+    {
+      onSuccess: async (data) => {
+        // queryClient.setQueryData("students", (old) => [data]);
+        queryClient.prefetchQuery("students", getStudents);
+      },
+    }
+  );
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error</div>;
+
+  const { name, email, status } = data;
+  const [firstName, lastName] = name ? name.split(" ") : formData;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (Object.keys(formData).length == 0)
-      return console.log("you don't have any form data!");
-    console.log(formData);
+    let studentName = `${formData.firstName ?? firstName} ${
+      formData.lastName ?? lastName
+    }`;
+    let updated = Object.assign({}, data, formData, { name: studentName });
+    console.log(updated);
+    await UpdateMutation.mutate(updated);
   };
-
-  if (Object.keys(formData).length > 0)
-    return <SuccessMsg message="Data added" />;
 
   return (
     <div className={styles.container}>
@@ -30,15 +46,17 @@ const UpdateStudentForm = () => {
         <div className={styles.inputs}>
           <input
             type="text"
-            name="firstname"
+            name="firstName"
             placeholder="First Name"
             onChange={setFormData}
+            defaultValue={firstName}
           />
           <input
             type="text"
-            name="lastname"
+            name="lastName"
             placeholder="Last Name"
             onChange={setFormData}
+            defaultValue={lastName}
           />
         </div>
         <div className={styles.inputs}>
@@ -47,6 +65,7 @@ const UpdateStudentForm = () => {
             name="email"
             placeholder="Email"
             onChange={setFormData}
+            defaultValue={email}
           />
         </div>
         <div className={styles.inputs}>
@@ -56,6 +75,7 @@ const UpdateStudentForm = () => {
             value="active"
             id="radioDefault1"
             onChange={setFormData}
+            defaultChecked={status == "active"}
           />
           <label htmlFor="radioDefault1">Active</label>
         </div>
@@ -66,6 +86,7 @@ const UpdateStudentForm = () => {
             value="inactive"
             id="radioDefault2"
             onChange={setFormData}
+            defaultChecked={status !== "active"}
           />
           <label htmlFor="radioDefault2">Inactive</label>
         </div>

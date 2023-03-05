@@ -5,12 +5,31 @@ import { BiUserPlus } from "react-icons/bi";
 import Table from "../components/Table";
 import StudentForm from "../components/StudentForm";
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { deleteAction, toggleChangeAction } from "../redux/reducer";
+import { deleteStudent, getStudents } from "../lib/helper";
+import { useQueryClient } from "react-query";
 
 export default function Home() {
-  const [visible, setVisible] = useState(false);
+  const visible = useSelector((state) => state.app.client.toggleForm);
+  const deleteId = useSelector((state) => state.app.client.deleteId);
+  const queryClient = useQueryClient();
+  const dispatch = useDispatch();
 
   const handler = () => {
-    setVisible(!visible);
+    dispatch(toggleChangeAction());
+  };
+
+  const deletehandler = async () => {
+    if (deleteId) {
+      await deleteStudent(deleteId);
+      await queryClient.prefetchQuery("students", getStudents);
+      await dispatch(deleteAction(null));
+    }
+  };
+  const cancelhandler = async () => {
+    console.log("cancel");
+    await dispatch(deleteAction(null));
   };
 
   return (
@@ -30,6 +49,7 @@ export default function Home() {
             Add Student <BiUserPlus />
           </button>
         </div>
+        {deleteId ? DeleteComponent({ deletehandler, cancelhandler }) : <></>}
         {/* collapsable form */}
         <div className={styles.formContainer}>
           {visible ? <StudentForm /> : <></>}
@@ -42,6 +62,22 @@ export default function Home() {
       <footer className={styles.footer}>
         Powered by <span className={styles.logo}>dbwebdev.io</span>
       </footer>
+    </div>
+  );
+}
+
+function DeleteComponent({ deletehandler, cancelhandler }) {
+  return (
+    <div className={styles.delete}>
+      <p>Are you sure?</p>
+      <div className={styles.deletebtnRow}>
+        <button className={styles.yesDelete} onClick={deletehandler}>
+          Yes
+        </button>
+        <button className={styles.noDelete} onClick={cancelhandler}>
+          No
+        </button>
+      </div>
     </div>
   );
 }

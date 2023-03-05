@@ -3,26 +3,39 @@ import { useReducer } from "react";
 import styles from "../styles/StudentForm.module.css";
 import { BiPlus } from "react-icons/bi";
 import SuccessMsg from "./SuccessMsg";
+import BugMsg from "./BugMsg";
+import { useQueryClient, useMutation, useQuery } from "react-query";
+import { addStudent, getStudents } from "../lib/helper";
 
-const formReducer = (state, event) => {
-  return {
-    ...state,
-    [event.target.name]: event.target.value,
-  };
-};
+const AddStudentForm = ({ formData, setFormData }) => {
+  const queryClient = useQueryClient();
 
-const AddStudentForm = () => {
-  const [formData, setFormData] = useReducer(formReducer, {});
+  const addMutation = useMutation(addStudent, {
+    onSuccess: () => {
+      queryClient.prefetchQuery("students", getStudents);
+    },
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (Object.keys(formData).length == 0)
       return console.log("you don't have any form data!");
-    console.log(formData);
+    let { firstName, lastName, email, status } = formData;
+
+    const model = {
+      name: `${firstName} ${lastName}`,
+      email,
+      status: status ?? "active",
+    };
+    addMutation.mutate(model);
+    console.log(model);
   };
 
-  if (Object.keys(formData).length > 0)
-    return <SuccessMsg message="Data added" />;
+  if (addMutation.isLoading) return <div>Loading!</div>;
+  if (addMutation.isError)
+    return <BugMsg message={addMutation.error.message}></BugMsg>;
+  if (addMutation.isSuccess)
+    return <SuccessMsg message={"added successfully"}></SuccessMsg>;
 
   return (
     <div className={styles.container}>
@@ -30,13 +43,13 @@ const AddStudentForm = () => {
         <div className={styles.inputs}>
           <input
             type="text"
-            name="firstname"
+            name="firstName"
             placeholder="First Name"
             onChange={setFormData}
           />
           <input
             type="text"
-            name="lastname"
+            name="lastName"
             placeholder="Last Name"
             onChange={setFormData}
           />
